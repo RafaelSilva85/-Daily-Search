@@ -43,8 +43,9 @@ The Daily Financial Research Emailer is a Python application designed to automat
     pip install -r requirements.txt
     ```
 6.  **Set Up Configuration:**
-    *   In the `config` subdirectory, rename or copy `config.ini.sample` to `config.ini`.
-    *   Edit `config.ini` with your specific details as explained below.
+    *   In the `config` subdirectory (within the main `financial_research_app` source folder), rename or copy `config.ini.sample` to `config.ini`.
+    *   Edit this `config.ini` with your specific details as explained below. This configuration is for running the script directly via `python main.py`.
+    *   *(For creating a standalone executable, see the "Using the Windows Executable (.exe)" section below for separate configuration steps after building).*
 
 ## Configuration (`config/config.ini`)
 
@@ -134,3 +135,35 @@ The application is configured using the `config.ini` file.
 
 ---
 *This README provides a general guide. You may need to adapt paths or commands slightly based on your specific OS or Python environment nuances.*
+
+## Using the Windows Executable (.exe)
+
+This section describes how to build a standalone Windows executable using PyInstaller and how to configure and run it. The `build.sh` script can be adapted for Linux/macOS builds.
+
+### Building the Executable
+1.  **PyInstaller:** Ensure PyInstaller is installed. If you've set up the project using `requirements.txt` and activated the virtual environment, it should already be available. If not, install it:
+    ```bash
+    pip install pyinstaller
+    ```
+2.  **Run the Build Script:**
+    *   On Windows, navigate to the root `financial_research_app` directory in a command prompt.
+    *   Execute the build script:
+        ```bash
+        build.bat
+        ```
+3.  **Output:** The bundled application will be located in the `financial_research_app/dist/FinancialResearchEmailer` directory.
+
+### Configuring the Executable Version
+1.  After building, navigate to the output directory: `financial_research_app/dist/FinancialResearchEmailer`.
+2.  Inside this directory, you will find a `config` subdirectory. This `config` directory was created by PyInstaller and contains `config.ini.sample` (copied during the build process).
+3.  **Create `config.ini` for the Executable:**
+    *   In `dist/FinancialResearchEmailer/config/`, copy `config.ini.sample` to a new file named `config.ini` (i.e., `dist/FinancialResearchEmailer/config/config.ini`).
+4.  **Edit the Executable's `config.ini`:**
+    *   Open `dist/FinancialResearchEmailer/config/config.ini` with a text editor.
+    *   Fill in your specific details (assets, email credentials, send time, etc.) as described in the main "Configuration (`config/config.ini`)" section of this README. This `config.ini` is specific to your built executable.
+
+### Running the Executable
+1.  Once the `dist/FinancialResearchEmailer/config/config.ini` file is configured, you can run the application.
+2.  Double-click `FinancialResearchEmailer.exe` located in the `dist/FinancialResearchEmailer` directory.
+3.  A console window will open, displaying logs. The application will perform an initial run and then schedule daily tasks according to the `send_time` in its `config.ini`.
+4.  The log file `financial_research.log` and the `config/config.ini` file used by the executable will be managed within this `dist/FinancialResearchEmailer` directory structure (log file in `dist/FinancialResearchEmailer/financial_research.log`, config in `dist/FinancialResearchEmailer/config/config.ini`).

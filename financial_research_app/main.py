@@ -16,16 +16,30 @@ from scraper.market_scrapers import (
     scrape_nyse
 )
 
+import sys # Required for PyInstaller path detection
+
 # Email imports
 from email_sender.emailer import compose_email_content, send_email
 
-# --- Determine script directory for path constructions ---
-# This should be defined early, before it's used by logging setup or other path logic.
-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# --- Application Path Helper ---
+def get_application_path():
+    """Determines the base path for the application, whether running as script or frozen executable."""
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # Running in a PyInstaller bundle (frozen)
+        # sys.executable is the path to the executable
+        application_path = os.path.dirname(sys.executable)
+    else:
+        # Running as a normal script
+        application_path = os.path.dirname(os.path.abspath(__file__))
+    return application_path
+
+_APP_BASE_DIR = get_application_path()
+
 
 # --- Enhanced Logging Setup ---
 # Get the root logger
-logger = logging.getLogger()
+logger = logging.getLogger() # Root logger
 logger.setLevel(logging.INFO) # Set global minimum level for the logger
 
 # Define a standard formatter
@@ -41,16 +55,17 @@ console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
 # File Handler
-# Save log file in the same directory as main.py
-log_file_path = os.path.join(_SCRIPT_DIR, 'financial_research.log')
+# Save log file in the application's base directory 
+log_file_path = os.path.join(_APP_BASE_DIR, 'financial_research.log')
 try:
     file_handler = logging.FileHandler(log_file_path, mode='a', encoding='utf-8')
-    file_handler.setLevel(logging.INFO) # Minimum level for file output (can be logging.DEBUG for more detail)
+    file_handler.setLevel(logging.INFO) 
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    logging.info(f"Logging to file: {log_file_path}") # Use logging.info which now goes to file too
+    # Initial log to confirm file logging is working.
+    # This will go to both console and file if file handler is successful.
+    logging.info(f"Application started. Logging to console and to file: {log_file_path}")
 except IOError as e:
-    # Fallback to console if file handler fails (e.g. permissions)
     logging.error(f"Could not set up file logger at {log_file_path}: {e}. Logging to console only.")
 
 
@@ -214,12 +229,13 @@ def run_daily_research(config_path: str):
 
 
 if __name__ == "__main__":
-    # Config paths are now relative to _SCRIPT_DIR defined at the top of the module
-    config_dir_abs_path = os.path.join(_SCRIPT_DIR, CONFIG_DIR_NAME)
+    # Config paths are now relative to _APP_BASE_DIR
+    config_dir_abs_path = os.path.join(_APP_BASE_DIR, CONFIG_DIR_NAME)
     default_config_abs_path = os.path.join(config_dir_abs_path, DEFAULT_CONFIG_FILENAME)
     sample_config_abs_path = os.path.join(config_dir_abs_path, SAMPLE_CONFIG_FILENAME)
 
-    # Ensure config.ini exists, copying from sample if needed.
+    # Ensure config.ini exists, copying from sample if needed. 
+    # This needs to happen before attempting to load configuration for scheduling.
     if not ensure_config_exists(default_config_abs_path, sample_config_abs_path, config_dir_abs_path):
         # Logging.critical will be caught by the new handlers
         logging.critical("Configuration file setup failed. Cannot proceed. Exiting.")
