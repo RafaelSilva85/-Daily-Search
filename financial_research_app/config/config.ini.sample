@@ -1,0 +1,24 @@
+[General]
+# Time to send the email, e.g., 08:00
+send_time = 08:00
+
+[Assets]
+# List assets one per line: TickerSymbol = MarketExchange (B3, NASDAQ, NYSE)
+# Example:
+# PETR4 = B3
+# AAPL = NASDAQ
+# MSFT = NYSE
+# Add your assets below:
+# STOCK1 = MARKET1
+# STOCK2 = MARKET2
+VALE3 = B3
+GOOGL = NASDAQ
+JPM = NYSE
+
+[Email]
+sender_email = your_email@example.com
+# For Gmail, this would be an app password if 2FA is enabled
+sender_password = your_password 
+recipient_emails = recipient1@example.com, recipient2@example.com
+smtp_server = smtp.example.com
+smtp_port = 587
